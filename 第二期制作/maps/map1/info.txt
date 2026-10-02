@@ -1,0 +1,4 @@
+name=map1
+csv=map.csv
+thumbnail=thumbnail.png
+description=

@@ -1,0 +1,4 @@
+name=test2
+csv=map.csv
+thumbnail=thumbnail.png
+description=‚ ‚è‚ª‚Æ‚¤‚²‚´‚¢‚Ü‚·B

@@ -1,0 +1,4 @@
+name=maptest1
+csv=map.csv
+thumbnail=thumbnail.png
+description=BFSà–¾—p

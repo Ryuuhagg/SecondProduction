@@ -1,0 +1,4 @@
+name=maptest
+csv=map.csv
+thumbnail=thumbnail.png
+description=ŠK‘wƒeƒXƒg

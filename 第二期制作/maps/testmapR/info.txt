@@ -1,0 +1,4 @@
+name=testmapR
+csv=map.csv
+thumbnail=thumbnail.png
+description=²“¡—´”gìI

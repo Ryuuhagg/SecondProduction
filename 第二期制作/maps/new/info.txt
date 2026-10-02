@@ -1,0 +1,4 @@
+name=new
+csv=map.csv
+thumbnail=thumbnail.png
+description=à–¾‚Å‚«‚Ü‚·

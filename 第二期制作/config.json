@@ -1,0 +1,23 @@
+{
+    "BGMVolume": 75,
+    "CamelaRightLeftFlip": false,
+    "CamelaUpDownFlip": false,
+    "KeyBack": "S",
+    "KeyCancel": "ESC",
+    "KeyConfirm": "ENTER",
+    "KeyDash": "LSHIFT",
+    "KeyFront": "W",
+    "KeyJump": "SPACE",
+    "KeyLeft": "A",
+    "KeyPause": "ESC",
+    "KeyRight": "D",
+    "PadCancel": "A",
+    "PadConfirm": "B",
+    "PadDash": "X",
+    "PadJump": "Y",
+    "PadPause": "START",
+    "SEVolume": 73,
+    "masterVolume": 48,
+    "mouseSensitivity": 0.001500000013038516,
+    "padSensitivity": 0.029999999329447746
+}
