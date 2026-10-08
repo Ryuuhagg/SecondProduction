@@ -1,7 +1,6 @@
 //Character.h
 #pragma once
 #include"DxLib.h"
-#include"Model.h"
 #include"Constant.h"
 #include<vector>
 using namespace std;
@@ -30,24 +29,20 @@ enum class CharaState {
 
 
 class Player : public Character {
-	int m_model = 0;
-	int m_animeIndex = 0;
-	int m_Size = 0;
-	int m_currentAnimNo = -1;
-	
-	int m_animIdle = 1;
-	int m_animWalk = 2;
-	int m_animJump = 0;
-
 	bool m_isMoving = false;
 	bool m_isDashing = false;
 
+	float m_animTime = 0;
+
 	float y = 0;
 	float vy = 0;
-	float m_gravity = -0.6f;
 	bool m_isGround = true;
 
+	float m_height = 20.0f;
+
 	int m_life = 0;
+
+	float m_size = 10.0f;
 
 	///ヒロシが追加　レイヤー
 	int m_layer = 0;
@@ -65,16 +60,18 @@ public:
 
 	void Move();
 
-	void Jump();
+	void ApplyIdolAnimation(VECTOR& leftArm, VECTOR& rightArm, VECTOR& leftLeg, VECTOR& rightLeg);
+	void ApplyWalkAnimation(VECTOR& leftArm, VECTOR& rightArm, VECTOR& leftLeg, VECTOR& rightLeg);
+
+	void DrawBox(VECTOR center, float halfWidth, float halfDepth, float halfHeight, int bodyColor);
+	void CreateDrawVertices(VECTOR center, VECTOR bottom[4], VECTOR top[4], float halfWidth, float halfDepth, float halfHeight);
+	VECTOR RotateXZ(VECTOR v);
 	// 2026-06-02: 罠や投げ弾からPlayerへダメージを渡し、HUDで残りライフを見せるため追加。
 	void Damage();
 	bool IsAlive() const;
 	int GetLife() const;
 	int GetLayer()const;
 	void UpdateState();
-	void UpdateAnimation();
-
-	void ChangeModel(const ModelData& data);
 
 	Angle getAngle() { return angle; }
 
@@ -127,15 +124,6 @@ class Enemy : public Character {
 	vector<Pos2> path;
 	int pathTimer = 0;
 
-	int m_model = 0;
-	int m_animeIndex = 0;
-	int m_Size = 0;
-	int m_currentAnimNo = -1;
-
-	int m_animIdle = 1;
-	int m_animWalk = 2;
-	int m_animJump = 0;
-
 	CharaState m_state = CharaState::Idle;
 
     int m_layer = 0;
@@ -155,7 +143,6 @@ public:
     void Draw()override;
     void DrawLayer(int drawLayer);
 
-	void ChangeModel(const ModelData& data);
     void Move();
 
 	void MoveToPlayer();

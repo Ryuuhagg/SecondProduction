@@ -12,29 +12,29 @@
 #include"GameObjects.h"
 #include"FontManager.h"
 
+//ã§í ä÷êî
+void DrawQuad3D(VECTOR a, VECTOR b, VECTOR c, VECTOR d, int color) {
+    DrawTriangle3D(a, b, c, color, true);
+    DrawTriangle3D(a, c, d, color, true);
+}
+
 #pragma region === Player ===
 Player::Player() :Character(10)
 {
     Init();
 }
 Player::~Player() {
-    MV1DeleteModel(m_model);
 }
 
 void Player::Init() {
-    ChangeModel(cat);
-
-    MV1SetScale(m_model, VGet(0.5f, 0.5f, 0.5f));
 
     pos = GetStartPosition();
     y = 0;
     vy = 0;
     m_isGround = true;
-    m_gravity = -0.6f;
     
     m_life = 3;
 
-    m_Size = 10;
     angle = { 0.0f, 1.5f };
 
     m_layer = GetMapLayerFromWorldY(pos.y);
@@ -47,28 +47,88 @@ void Player::Update() {
     }
     else {
         Move();
-        Jump();
-        // 2026-07-16: äKíiã@î\ÇÕÇ¢Ç¡ÇΩÇÒégÇÌÇ»Ç¢ÇΩÇﬂÅAëwà⁄ìÆÉCÉxÉìÉgÇÕé~ÇﬂÇÈÅB
-
         UpdateState();
-        UpdateAnimation();
-
-        MV1SetPosition(m_model, pos);
-        MV1SetRotationXYZ(m_model, VGet(0, angle.x + DX_PI_F, 0));
-        // 2026-07-16: äKíiÇÃëwêÿë÷ÇÕ TryMoveLayerByStairs Ç…àÍñ{âªÇµÅAÉçÅ[ÉhëwÇÕåªç›ÇÃÉvÉåÉCÉÑÅ[ëwÇ÷çáÇÌÇπÇÈÅB
         SetGameLoadedLayer(m_layer);
     }
 
 }
 
 void Player::Draw() {
-    int oldLighting = GetLightEnable();
+    float swing = sinf(m_animTime) * 10.0f;
 
-    SetUseLighting(FALSE);
-    SetLightEnable(FALSE);
-    MV1DrawModel(m_model);
-    SetLightEnable(oldLighting);
-    SetUseLighting(TRUE);
+    const int bodyColor = GetColor(255, 0, 0);
+    const int frontColor = GetColor(255, 255, 0);
+
+    float legHalfWidth = m_size * 0.35f;
+    float armHalfWidth = m_size * 0.35f;
+    float legOffset = m_size * 0.55f;
+    float armOffset = m_size + armHalfWidth;
+
+    VECTOR leftArmOffset = VGet(-armOffset, m_size * 2, 0.0f);
+    VECTOR rightArmOffset = VGet(armOffset, m_size * 2, 0.0f);
+    VECTOR leftLegOffset = VGet(-legOffset, m_size, 0.0f);
+    VECTOR rightLegOffset = VGet(legOffset, m_size, 0.0f);
+
+    VECTOR leftEyeOffset = VGet(-m_size * 0.4f, m_size * 0.3f, m_size + 1.0f);
+    VECTOR rightEyeOffset = VGet(m_size * 0.4f, m_size * 0.3f, m_size + 1.0f);
+
+    VECTOR mouthOffset = VGet(0.0f, -m_size * 0.3f, m_size + 1.0f);
+
+    if (m_isMoving) {
+        m_animTime += 0.1f;
+        ApplyWalkAnimation(leftArmOffset, rightArmOffset, leftLegOffset, rightLegOffset);
+    }
+    else {
+        m_animTime = 0;
+        ApplyIdolAnimation(leftArmOffset, rightArmOffset, leftLegOffset, rightLegOffset);
+    }
+
+    VECTOR head = VGet(pos.x, pos.y + m_size * 3 + m_size, pos.z);
+    VECTOR leftArm = VAdd(pos, RotateXZ(leftArmOffset));
+    VECTOR rightArm = VAdd(pos, RotateXZ(rightArmOffset));
+    VECTOR body = VGet(pos.x, pos.y + m_size * 2, pos.z);
+    VECTOR leftLeg = VAdd(pos, RotateXZ(leftLegOffset));
+    VECTOR rightLeg = VAdd(pos, RotateXZ(rightLegOffset));
+
+    VECTOR leftEye = VAdd(head, RotateXZ(leftEyeOffset));
+    VECTOR rightEye = VAdd(head, RotateXZ(rightEyeOffset));
+    VECTOR mouth = VAdd(head, RotateXZ(mouthOffset));
+
+    DrawBox(head, m_size, m_size, m_size, frontColor);
+    DrawBox(leftArm, legHalfWidth, m_size / 2, m_size, frontColor);
+    DrawBox(rightArm, legHalfWidth, m_size / 2, m_size, frontColor);
+    DrawBox(body, m_size, m_size, m_size, bodyColor);
+    DrawBox(leftLeg, legHalfWidth, m_size/2, m_size, bodyColor);
+    DrawBox(rightLeg, legHalfWidth, m_size/2, m_size, bodyColor);
+
+    DrawBox(leftEye, m_size * 0.15f, 2.0f, m_size * 0.15f, BLACK);
+    DrawBox(rightEye, m_size * 0.15f, 2.0f, m_size * 0.15f, BLACK);
+
+    DrawBox(mouth, m_size * 0.2f, 1.0f, m_size * 0.3f, BLACK);
+
+    VECTOR forward = VGet(
+        sinf(angle.x),
+        0.0f,
+        cosf(angle.x)
+    );
+
+    VECTOR start = VGet(
+        pos.x,
+        pos.y + m_size * 2,
+        pos.z
+    );
+
+    VECTOR end = VGet(
+        start.x + forward.x * 100.0f,
+        start.y,
+        start.z + forward.z * 100.0f
+    );
+
+    DrawLine3D(
+        start,
+        end,
+        GetColor(0, 255, 0)
+    );
 }
 
 void Player::Move() {
@@ -94,8 +154,6 @@ void Player::Move() {
         angle.x = atan2f(moveX, moveZ);
     }
 
-
-
     float currentSpeed = speed;
 
     m_isMoving = length > 0.1f;
@@ -118,38 +176,66 @@ void Player::Move() {
 
 }
 
-void Player::Jump() {
-    const float playerRadius = 60.0f;
-    UpdatePlayerMapVertical(
-        pos,
-        y,
-        vy,
-        m_isGround,
-        m_layer,
-        Input::IsActionTrigger(Action::Jump),
-        Input::IsActionTrigger(Action::Down),
-        m_gravity,
-        playerRadius
-    );
+void Player::ApplyIdolAnimation(VECTOR& leftArm, VECTOR& rightArm, VECTOR& leftLeg, VECTOR& rightLeg)
+{
+    
 }
 
+void Player::ApplyWalkAnimation(VECTOR& leftArm, VECTOR& rightArm, VECTOR& leftLeg, VECTOR& rightLeg)
+{
+    float swing = sinf(m_animTime) * 10.0f;
+
+    leftArm.z -= swing;
+    rightArm.z += swing;
+
+    leftLeg.z += swing;
+    rightLeg.z -= swing;
+}
+
+void Player::DrawBox(VECTOR center, float halfWidth, float halfDepth, float halfHeight, int bodyColor) {
+    VECTOR bottom[4];
+    VECTOR top[4];
+
+    CreateDrawVertices(center, bottom, top, halfWidth, halfDepth, halfHeight);
+
+    //â∫
+    DrawQuad3D(bottom[0], bottom[1], bottom[2], bottom[3], bodyColor);
+    //è„
+    DrawQuad3D(top[0], top[1], top[2], top[3], bodyColor);
+    //ë§ñ 
+    DrawQuad3D(bottom[0], bottom[1], top[1], top[0], bodyColor);
+    DrawQuad3D(bottom[0], bottom[3], top[3], top[0], bodyColor);
+    DrawQuad3D(bottom[1], bottom[2], top[2], top[1], bodyColor);
+    DrawQuad3D(bottom[2], bottom[3], top[3], top[2], bodyColor);
+}
+
+void Player::CreateDrawVertices(VECTOR center, VECTOR bottom[4], VECTOR top[4], float halfWidth, float halfDepth, float halfHeight) {
+    VECTOR local[4] = {
+        VGet(-halfWidth, 0.0f, -halfDepth),
+        VGet(halfWidth, 0.0f, -halfDepth),
+        VGet(halfWidth, 0.0f,  halfDepth),
+        VGet(-halfWidth, 0.0f,  halfDepth)
+    };
+
+    for (int i = 0; i < 4; i++) {
+        VECTOR rotated = RotateXZ(local[i]);
+
+        bottom[i] = VGet(center.x + rotated.x, center.y - halfHeight, center.z + rotated.z);
+        top[i] = VGet(center.x + rotated.x, center.y + halfHeight, center.z + rotated.z);
+    }
+}
+
+VECTOR Player::RotateXZ(VECTOR v)
+{
+    float cosAngle = cosf(angle.x);
+    float sinAngle = sinf(angle.x);
+
+    return VGet(v.x * cosAngle + v.z * sinAngle, v.y, -v.x * sinAngle + v.z * cosAngle);
+}
 
 void Player::UpdateState() {
     float x = Input::GetAxisLX();
     float y = Input::GetAxisLY();
-
-    if (!m_isGround) {
-        m_state = CharaState::Jump;
-    }
-    else if (m_isDashing) {
-        m_state = CharaState::Dash;
-    }
-    else if (m_isMoving) {
-        m_state = CharaState::Walk;
-    }
-    else {
-        m_state = CharaState::Idle;
-    }
 }
 
 void Player::Damage() {
@@ -165,7 +251,6 @@ void Player::Damage() {
     y = 0;
     vy = 0;
     m_isGround = true;
-    m_gravity = -0.6f;
     m_layer = GetMapLayerFromWorldY(pos.y + BLOCK_SIZE * 0.5f);
 }
 
@@ -181,51 +266,6 @@ int Player::GetLife() const {
 
 int Player::GetLayer() const {
     return m_layer;
-}
-
-void Player::UpdateAnimation() {
-    int nextAnim = 0;
-
-    switch (m_state) {
-    case CharaState::Jump: nextAnim = 0; break;
-    case CharaState::Idle: nextAnim = 1; break;
-    case CharaState::Walk: nextAnim = 2; break;
-    case CharaState::Dash: nextAnim = 3; break;
-    }
-
-    if (nextAnim != m_currentAnimNo) {
-
-        MV1DetachAnim(m_model, m_animeIndex);
-
-        m_animeIndex = MV1AttachAnim(m_model, nextAnim);
-        MV1SetAttachAnimBlendRate(m_model, m_animeIndex, 1.0f);
-
-        m_currentAnimNo = nextAnim;
-    }
-
-    float now = MV1GetAttachAnimTime(m_model, m_animeIndex);
-    float total = MV1GetAttachAnimTotalTime(m_model, m_animeIndex);
-
-    now += 0.5f;
-    now = fmod(now, total);
-
-    MV1SetAttachAnimTime(m_model, m_animeIndex, now);
-}
-
-void Player::ChangeModel(const ModelData& data) {
-
-    if (m_model != 0) {
-        MV1DeleteModel(m_model);
-    }
-
-    m_model = MV1LoadModel(data.path);
-
-    m_animIdle = data.idle;
-    m_animWalk = data.walk;
-    m_animJump = data.jump;
-
-    m_animeIndex = MV1AttachAnim(m_model, m_animIdle);
-    m_currentAnimNo = m_animIdle;
 }
 
 void Player::SetCameraAngle(Angle& a) { C_angle = a; }
@@ -343,10 +383,8 @@ void Enemy::Init(int y, int x, int z, int id) {
 
     switch (id) {
     case 0:
-        ChangeModel(bee);
         break;
     case 1:
-        ChangeModel(bunny);
         break;
     }
 
@@ -368,19 +406,11 @@ void Enemy::Init(int y, int x, int z, int id) {
         patrolPoints.push_back({ x, z });
     }
 
-    MV1SetScale(m_model, VGet(0.5f, 0.5f, 0.5f));
     isActive = true;
 }
 
 void Enemy::Update() {
     Move();
-    if (m_model) {
-        VECTOR drawPos = pos;
-
-        // ÉÇÉfÉãÇÃå¥ì_Ç∆ë´å≥ÇÃÉYÉåÇï‚ê≥
-        drawPos.y += 50.0f;
-        MV1SetPosition(m_model, pos);
-    }
 }
 
 void Enemy::Draw() {
@@ -394,17 +424,6 @@ void Enemy::DrawLayer(int drawLayer) {
     // 2026-07-16: ï äKëwÇÃìGÇ™ï«âzÇµÇ…å©Ç¶Ç»Ç¢ÇÊÇ§ÅAåªç›ï`âÊíÜÇÃäKëwÇæÇØï\é¶Ç∑ÇÈÅB
     if (m_layer != drawLayer)
         return;
-
-    if (m_model != 0)
-    {
-        int oldLighting = GetLightEnable();
-
-        SetUseLighting(FALSE);
-        SetLightEnable(FALSE);
-        MV1DrawModel(m_model);
-        SetLightEnable(oldLighting);
-        SetUseLighting(TRUE);
-    }
 }
 
 void Enemy::Move() {
@@ -560,12 +579,6 @@ void Enemy::MoveToPlayer(){
     nextPos.z += dir.z * speed;
 
     MoveWithHalfStep(nextPos);
-
-    if (m_model != 0)
-    {
-        float angle = atan2f(dir.x, dir.z);
-        MV1SetRotationXYZ(m_model, VGet(0, angle + DX_PI_F, 0));
-    }
 }
 
 void Enemy::MovePatrol() {
@@ -646,7 +659,6 @@ void Enemy::MoveToCell(Pos2 next)
     MoveWithHalfStep(nextPos);
 
     float angle = atan2f(dir.x, dir.z);
-    MV1SetRotationXYZ(m_model, VGet(0, angle + DX_PI_F, 0));
 }
 
 bool Enemy::IsHitPlayer(VECTOR playerPos, int playerLayer) const
@@ -937,22 +949,6 @@ vector<MapNode> FindMapPathBFS(
     );
 
     return path;
-}
-
-void Enemy::ChangeModel(const ModelData& data) {
-
-    if (m_model != 0) {
-        MV1DeleteModel(m_model);
-    }
-
-    m_model = MV1LoadModel(data.path);
-
-    m_animIdle = data.idle;
-    m_animWalk = data.walk;
-    m_animJump = data.jump;
-
-    m_animeIndex = MV1AttachAnim(m_model, m_animIdle);
-    m_currentAnimNo = m_animIdle;
 }
 
 void Enemy::SetPlayerPos(VECTOR playerPos) {
