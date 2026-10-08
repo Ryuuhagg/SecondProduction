@@ -207,7 +207,7 @@ void DrawMiniMap(VECTOR playerPos)
 
     DrawCellMarker(gameStartY, gameStartZ, gameStartX, GetColor(80, 180, 255));
     DrawCellMarker(gameGoalY, gameGoalZ, gameGoalX, GetColor(255, 220, 70));
-
+    /*
     for (int i = 0; i < e.GetEnemyCount(); i++)
     {
         VECTOR enemyPos;
@@ -219,7 +219,7 @@ void DrawMiniMap(VECTOR playerPos)
         int enemyZ = WorldToCell(enemyPos.z);
         DrawCellMarker(enemyLayer, enemyZ, enemyX, GetColor(255, 70, 95));
     }
-
+    */
     float playerCellX = playerPos.x / BLOCK_SIZE;
     float playerCellZ = playerPos.z / BLOCK_SIZE;
 

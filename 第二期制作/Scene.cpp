@@ -15,6 +15,9 @@
 #include"GameObjects.h"
 // 2026-06-12: ?????G??EVENT???番?????A?G??p?????????????????????B
 #include"GameEnemies.h"
+#include"Player.h"
+#include"Camera.h"
+#include"EnemyManager.h"
 #include<fstream>
 #include<vector>
 #include<string>
@@ -22,7 +25,7 @@
 #include<windows.h>
 using namespace std;
 Player p;
-Camela c(p);
+Camera c(p);
 EnemyManager e;
 static bool IsMapCsvExists(int mapIndex)
 {
@@ -167,7 +170,7 @@ static bool IsEditorMapStartGoalOnFloor()
 		FloorMap[startY][startZ][startX] >= 0 &&
 		FloorMap[goalY][goalZ][goalX] >= 0;
 }
-
+/*
 static bool IsStartGoalConnected()
 {
 	LoadGameMap();
@@ -177,10 +180,9 @@ static bool IsStartGoalConnected()
 	//if (startY != goalY)
 		//return false;
 
-	auto path = FindMapPathBFS(startY, startX, startZ, goalY, goalX, goalZ);
 	return !path.empty();
 }
-
+*/
 Title::Title(){
 	Init();
 }
@@ -745,13 +747,6 @@ void Select::Update(SceneManager& manager) {
 			break;
 		}
 
-		if (!IsStartGoalConnected())
-		{
-			showStartGoalWarning = true;
-			changeFlg = 0;
-			break;
-		}
-
 		manager.GetSoundManager().Play("confirm");
 
 		manager.ChangeScene(
@@ -823,14 +818,14 @@ void Game::Init() {
 	// 2026-06-12: [ENEMY]???????G???AEVENT?M?~?b?N???????????????????B
 	//InitGameEnemies();
 	p.Init();
-	e.Init();
+	//e.Init();
 
 }
 
 void Game::Draw() {
 	p.Draw();
 	// 2026-07-23: 敵デバッグ文字は出さず、現在階層の敵本体だけ描画する。
-	e.DrawLayer(GetGameDrawLayer());
+	//e.DrawLayer(GetGameDrawLayer());
 	//DrawString(WIDTH / 2, HEIGHT-550, "ゲーム画面", GetColor(255, 255, 255));
 	DrawGameMap();
 	// 2026-05-18: 迷路探索中に階層と通った道が見えるよう、3D描画の後にミニマップを重ねる。
@@ -907,13 +902,14 @@ void Game::Update(SceneManager& manager) {
 			p.Damage();
 			manager.Trans(make_unique<DamageFade>(p.GetLife()));
 		}
+		
 		if (e.IsHitPlayer(p.getVECTOR(), p.GetLayer()))
 		{
 			timer.Pause();
 			p.Damage();
 			manager.Trans(make_unique<DamageFade>(p.GetLife()));
 		}
-
+		
 		// 2026-06-02: ライフが尽きた時にゲームを終わらせるため追加。
 		if (!p.IsAlive())
 		{

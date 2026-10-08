@@ -19,9 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="Character.h" />
     <ClInclude Include="Constant.h" />
     <ClInclude Include="CsvUtil.h" />
+    <ClInclude Include="Enemy.h" />
+    <ClInclude Include="EnemyManager.h" />
     <ClInclude Include="FontManager.h" />
     <ClInclude Include="GameEnemies.h" />
     <ClInclude Include="GameObjects.h" />
@@ -34,6 +37,7 @@
     <ClInclude Include="Model.h" />
     <ClInclude Include="Option.h" />
     <ClInclude Include="OptionMenuUI.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="Sound.h" />
@@ -43,7 +47,10 @@
     <ClInclude Include="UIManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Character.cpp" />
+    <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="EnemyManager.cpp" />
     <ClCompile Include="FontManager.cpp" />
     <ClCompile Include="GameEnemies.cpp" />
     <ClCompile Include="GameObjects.cpp" />
@@ -59,6 +66,7 @@
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Option.cpp" />
     <ClCompile Include="OptionMenuUI.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="Sound.cpp" />
