@@ -6,16 +6,37 @@ enum class EnemyState {
 };
 
 class Enemy : public Character {
-	EnemyState state = EnemyState::Move;
+protected:
+	//生存フラグ
 	bool m_isActive;
+	//ステータス
+	int m_hp = 0;
+	int m_attack = 0;
 public:
-	Enemy();
-	void Init(int y, int x, int z, int id);
-	void Update()override;
-	void Draw()override;
+    Enemy(float speed);
+    virtual ~Enemy() = default;
 
-	void Move();
+    virtual void Init(VECTOR pos) = 0;
 
-	bool IsActive() const { return m_isActive; }
-	VECTOR GetPosition() const { return pos; }
+    void Update() override;
+    void Draw() override;
+
+    virtual void Move() = 0;
+    virtual void Attack() = 0;
+
+    void Damage(int damage);
+
+    bool IsActive() const { return m_isActive; }
+    bool IsAlive() const { return m_hp > 0; }
+};
+
+class EnemyMelee : public Enemy
+{
+public:
+    EnemyMelee();
+
+    void Init(VECTOR pos) override;
+
+    void Move() override;
+    void Attack() override;
 };
