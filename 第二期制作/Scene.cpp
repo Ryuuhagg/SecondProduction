@@ -884,7 +884,7 @@ void Game::Update(SceneManager& manager) {
 		Input::UpdateMouseDeltaFromCenter();
 
 		p.Update();
-		e.Update(p.getVECTOR(), p.GetLayer());
+		e.Update();
 		c.Update();
 		UpdateGameMap();
 
@@ -897,13 +897,6 @@ void Game::Update(SceneManager& manager) {
 		// 2026-06-12: ?GAI??G?e????????????X?V?????????B
 	//	UpdateGameEnemies(p.getVECTOR(), playerLayer, playerDamaged);
 		if (playerDamaged)
-		{
-			timer.Pause();
-			p.Damage();
-			manager.Trans(make_unique<DamageFade>(p.GetLife()));
-		}
-		
-		if (e.IsHitPlayer(p.getVECTOR(), p.GetLayer()))
 		{
 			timer.Pause();
 			p.Damage();

@@ -10,7 +10,7 @@ class SceneManager;
 class Scene {
 protected:
 	UIManager uiManager;
-	bool first;
+	bool first = true;
 public:
 	virtual void Init() = 0;
 	virtual void Update(SceneManager& manager) = 0;

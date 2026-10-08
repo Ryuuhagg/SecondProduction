@@ -13,22 +13,25 @@ void EnemyManager::Init() {
     
 }
 
-void EnemyManager::Update(VECTOR playerPos, int playerLayer) {
+void EnemyManager::Update() {
     for (auto& e : enemies) {
-        e.Update();
+        e->Update();
     }
 }
 
 void EnemyManager::Draw() {
-    
+    for (auto& enemy : enemies){
+        enemy->Draw();
+    }
 }
 
-void EnemyManager::DrawLayer(int drawLayer) {
-    // 2026-07-23: 敵デバッグ文字は出さず、敵本体だけ描画する。
-    for (auto& e : enemies)
-    {
-        e.Draw();
-    }
+void EnemyManager::SpawnMelee(VECTOR pos)
+{
+    auto enemy = std::make_unique<EnemyMelee>();
+
+    enemy->Init(pos);
+
+    enemies.push_back(std::move(enemy));
 }
 
 int EnemyManager::GetEnemyCount() const
@@ -36,26 +39,19 @@ int EnemyManager::GetEnemyCount() const
     return (int)enemies.size();
 }
 
-bool EnemyManager::GetEnemyPosition(int index, VECTOR& outPos, int& outLayer) const
+bool EnemyManager::GetEnemyPosition(int index, VECTOR& outPos) const
 {
     if (index < 0 || index >= (int)enemies.size())
         return false;
 
-    const Enemy& enemy = enemies[index];
-    if (!enemy.IsActive())
+    const Enemy* enemy = enemies[index].get();
+
+    if (!enemy->IsActive())
         return false;
 
-    outPos = enemy.GetPosition();
+    outPos = enemy->GetPosition();
+
     return true;
 }
 
-bool EnemyManager::IsHitPlayer(VECTOR playerPos, int playerLayer) const
-{
-    for (const auto& enemy : enemies)
-    {
-
-    }
-
-    return false;
-}
 #pragma endregion

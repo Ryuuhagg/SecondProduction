@@ -26,6 +26,8 @@ public:
 
     void Damage(int damage);
 
+    VECTOR GetPosition() const { return pos; }
+
     bool IsActive() const { return m_isActive; }
     bool IsAlive() const { return m_hp > 0; }
 };

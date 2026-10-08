@@ -1,9 +1,9 @@
 #include"Enemy.h"
 
 #pragma region === Enemy ===
-Enemy::Enemy() : Character(7), m_isActive(false) {}
+Enemy::Enemy(float speed) : Character(speed), m_isActive(false) {}
 
-void Enemy::Init(int y, int x, int z, int id) {
+void Enemy::Init(VECTOR pos) {
     const float enemyRadius = 10.0f;
     m_isActive = true;
 }
@@ -31,5 +31,28 @@ void Enemy::Move() {
         return;
 
 }
+
+void Enemy::Damage(int damage) {
+
+}
+
+#pragma endregion
+
+#pragma region MeleeEnemy
+EnemyMelee::EnemyMelee():Enemy(10){}
+
+
+void EnemyMelee::Init(VECTOR pos) {
+
+}
+
+void EnemyMelee::Attack() {
+
+}
+
+void EnemyMelee::Move() {
+
+}
+
 
 #pragma endregion
