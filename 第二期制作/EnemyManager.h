@@ -9,7 +9,7 @@ public:
     EnemyManager();
 
     void Init();
-    void Update();
+    void Update(VECTOR playerPos, Damageable *player);
     void Draw();
 
     void SpawnMelee(VECTOR pos);

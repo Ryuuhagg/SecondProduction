@@ -3,7 +3,7 @@
 #include"Input.h"
 #include"GameObjects.h"
 #pragma region === Player ===
-Player::Player() :Character(10)
+Player::Player() :Character(10, 100)
 {
     Init();
 }
@@ -14,22 +14,15 @@ void Player::Init() {
 
     pos = GetStartPosition();
 
-    m_life = 3;
-
     angle = { 0.0f, 1.5f };
 }
 
 void Player::Update() {
     m_isMoving = false;
-    if (m_life <= 0) {
-
-    }
-    else {
+    
         Move();
         UpdateState();
         SetGameLoadedLayer(m_layer);
-    }
-
 }
 
 void Player::Draw() {
@@ -133,7 +126,7 @@ void Player::Move() {
         angle.x = atan2f(moveX, moveZ);
     }
 
-    float currentSpeed = speed;
+    float currentSpeed = m_speed;
 
     m_isMoving = length > 0.1f;
 
@@ -215,29 +208,6 @@ VECTOR Player::RotateXZ(VECTOR v)
 void Player::UpdateState() {
     float x = Input::GetAxisLX();
     float y = Input::GetAxisLY();
-}
-
-void Player::Damage() {
-    // 2026-06-02: GameObjectsから受けたダメージを既存の死亡/リスポーン処理へ集約するため追加。
-   // 2026-06-02: ギミックのダメージでライフが0未満へ減り続けないよう追加。
-    if (m_life <= 0)
-        return;
-
-    m_life--;
-    // 2026-06-15: ライフが残っている時は、STARTではなく有効チェックポイントへ復帰する。
-    pos = GetGameRespawnPosition();
-    SetGameLoadedLayer(m_layer);
-    m_layer = GetMapLayerFromWorldY(pos.y + BLOCK_SIZE * 0.5f);
-}
-
-bool Player::IsAlive() const {
-    // 2026-06-02: ライフが尽きた時にScene側でリザルトへ遷移するため追加。
-    return m_life > 0;
-}
-
-int Player::GetLife() const {
-    // 2026-06-02: ゲーム画面のHUDに残りライフを表示するため追加。
-    return m_life;
 }
 
 int Player::GetLayer() const {

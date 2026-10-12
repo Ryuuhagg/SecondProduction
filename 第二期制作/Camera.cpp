@@ -24,7 +24,7 @@ void Camera::Init() {
 
 void Camera::Update() {
     p.SetCameraAngle(cameraAngle);
-    VECTOR target = p.getVECTOR();
+    VECTOR target = p.GetPosition();
     target.y += 80.0f; // ­‚µã‚ğŒ©‚é‚È‚ç‘«Œ³‚Å‚Í‚È‚­‘Ì‚Ì’†S‚ ‚½‚è
 
     VECTOR idealCamPos = VGet(

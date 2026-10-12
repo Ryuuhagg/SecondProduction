@@ -34,3 +34,23 @@ public:
 
 	void Stop();
 };
+
+class Cooldown
+{
+private:
+	int m_interval = 0;      // クールダウン時間
+	int m_lastTime = 0;      // 最後に使用した時間
+	bool m_started = false;  // 一度でも使用したか
+
+public:
+	Cooldown(int interval);
+
+	// 使用可能か
+	bool IsReady() const;
+
+	// クールダウン開始
+	void Reset();
+
+	// クールダウン時間変更
+	void SetInterval(int interval);
+};

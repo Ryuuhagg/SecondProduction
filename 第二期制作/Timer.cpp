@@ -59,3 +59,25 @@ void Stopwatch::Resume() {
         paused = false;
     }
 }
+
+Cooldown::Cooldown(int interval) : m_interval(interval){}
+
+bool Cooldown::IsReady() const
+{
+    // まだ一度も使用していないならすぐ使える
+    if (!m_started)
+        return true;
+
+    return GetNowCount() - m_lastTime >= m_interval;
+}
+
+void Cooldown::Reset()
+{
+    m_lastTime = GetNowCount();
+    m_started = true;
+}
+
+void Cooldown::SetInterval(int interval)
+{
+    m_interval = interval;
+}
