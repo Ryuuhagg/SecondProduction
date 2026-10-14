@@ -23,6 +23,23 @@ void Camera::Init() {
 }
 
 void Camera::Update() {
+    VECTOR target = p.GetPosition();
+
+    // プレイヤーの少し上を見る
+    target.y += 30.0f;
+
+    VECTOR cameraPos = VGet(
+        target.x,
+        target.y + 700.0f,   // 高さ
+        target.z - 500.0f    // 少し後ろ
+    );
+
+    SetCameraPositionAndTarget_UpVecY(
+        cameraPos,
+        target
+    );
+    /*
+
     p.SetCameraAngle(cameraAngle);
     VECTOR target = p.GetPosition();
     target.y += 80.0f; // 少し上を見るなら足元ではなく体の中心あたり
@@ -62,8 +79,8 @@ void Camera::Update() {
 
 
     SetCameraPositionAndTarget_UpVecY(camPos, target);
-
     MoveAngle();
+    */
 }
 
 void Camera::Draw() {

@@ -32,6 +32,9 @@ struct Config {
 	int KeyBack;
 	int KeyRight;
 	int KeyLeft;
+
+	int KeyAttack;
+	int PadAttack;
 };
 
 class Option {

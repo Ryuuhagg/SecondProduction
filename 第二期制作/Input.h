@@ -15,7 +15,8 @@ enum class Action {
 	MoveUp,
 	MoveDown,
 	MoveLeft,
-	MoveRight
+	MoveRight,
+	Attack,
 };
 
 class Input {

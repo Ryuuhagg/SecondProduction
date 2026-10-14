@@ -3,7 +3,7 @@
 #include"Input.h"
 #include"GameObjects.h"
 #pragma region === Player ===
-Player::Player() :Character(10, 100)
+Player::Player() :Character(10, 10000), m_coolDown(1000)
 {
     Init();
 }
@@ -15,14 +15,23 @@ void Player::Init() {
     pos = GetStartPosition();
 
     angle = { 0.0f, 1.5f };
+    m_coolDown.SetInterval(1000);
 }
 
 void Player::Update() {
+    m_attackTriggered = false;
     m_isMoving = false;
     
-        Move();
-        UpdateState();
-        SetGameLoadedLayer(m_layer);
+    Move();
+    UpdateState();
+    SetGameLoadedLayer(m_layer);
+
+    if (Input::IsActionTrigger(Action::Attack)) {
+        if (m_coolDown.IsReady()) {
+            Attack();
+            m_coolDown.Reset();
+        }
+    }
 }
 
 void Player::Draw() {
@@ -148,6 +157,10 @@ void Player::Move() {
 
 }
 
+void Player::Attack() {
+    m_attackTriggered = true;
+}
+
 void Player::ApplyIdolAnimation(VECTOR& leftArm, VECTOR& rightArm, VECTOR& leftLeg, VECTOR& rightLeg)
 {
 
@@ -212,6 +225,10 @@ void Player::UpdateState() {
 
 int Player::GetLayer() const {
     return m_layer;
+}
+
+VECTOR Player::GetForward() const {
+    return VGet(sinf(angle.x), 0.0f, cosf(angle.x));
 }
 
 void Player::SetCameraAngle(Angle& a) { C_angle = a; }

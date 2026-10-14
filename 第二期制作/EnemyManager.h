@@ -12,6 +12,9 @@ public:
     void Update(VECTOR playerPos, Damageable *player);
     void Draw();
 
+    void ResolveEnemyCollision();
+
+    void AttackEnemies(VECTOR attackPos, VECTOR forward, float attackRange, int damage);
     void SpawnMelee(VECTOR pos);
 
     int GetEnemyCount() const;

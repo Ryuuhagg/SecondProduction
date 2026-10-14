@@ -55,6 +55,11 @@ public:
     VECTOR GetPosition() const {
         return pos;
     }
+
+    void AddPosition(VECTOR move)
+    {
+        pos = VAdd(pos, move);
+    }
 };
 
 struct Angle {

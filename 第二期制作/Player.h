@@ -8,8 +8,13 @@ class Player : public Character {
 	float m_animTime = 0;
 	float m_size = 10.0f;
 
+	Damageable* m_target = nullptr;
+	VECTOR m_targetPos;
+
+	bool m_attackTriggered = false;
 	///ヒロシが追加　レイヤー
 	int m_layer = 0;
+	Cooldown m_coolDown;
 
 	CharaState m_state = CharaState::Idle;
 	Angle angle = { 0.0f, 0.3f };
@@ -23,6 +28,7 @@ public:
 	void Draw() override;
 
 	void Move();
+	void Attack();
 
 	void ApplyIdolAnimation(VECTOR& leftArm, VECTOR& rightArm, VECTOR& leftLeg, VECTOR& rightLeg);
 	void ApplyWalkAnimation(VECTOR& leftArm, VECTOR& rightArm, VECTOR& leftLeg, VECTOR& rightLeg);
@@ -35,6 +41,9 @@ public:
 	void UpdateState();
 
 	Angle getAngle() { return angle; }
-
+	VECTOR GetForward() const;
 	void SetCameraAngle(Angle& a);
+	bool IsAttackTriggered() const {
+		return m_attackTriggered;
+	}
 };

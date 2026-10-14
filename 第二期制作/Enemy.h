@@ -12,11 +12,12 @@ protected:
 	//生存フラグ
 	bool m_isActive;
 	//ステータス
-	int m_hp = 0;
 	int m_attack = 0;
 
     Damageable* m_target = nullptr;
     Cooldown m_coolDown;
+
+    float m_radius;
 
     VECTOR m_targetPos;
 public:
@@ -36,9 +37,8 @@ public:
     void SetTarget(Damageable *target);
 
     VECTOR GetPosition() const { return pos; }
-
+    float GetRadius() const { return m_radius; }
     bool IsActive() const { return m_isActive; }
-    bool IsAlive() const { return m_hp > 0; }
 };
 
 class EnemyMelee : public Enemy

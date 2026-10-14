@@ -12,6 +12,12 @@ void Enemy::Update() {
     if (!m_isActive)
         return;
 
+    if (!IsAlive()) {
+        m_isActive = false;
+        printfDx("Enemy Die\n");
+        return;
+    }
+
     Move();
 }
 
@@ -21,7 +27,7 @@ void Enemy::Draw() {
 
     DrawSphere3D(
         pos,
-        20.0f,
+        m_radius,
         16,
         GetColor(255, 0, 0),
         GetColor(255, 255, 255),
@@ -49,6 +55,7 @@ void EnemyMelee::Init(VECTOR startPos){
     m_hp = m_maxHp;
     m_attack = 10;
     m_isActive = true;
+    m_radius = 20;
 
     m_coolDown.SetInterval(1000);
 }
