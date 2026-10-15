@@ -24,6 +24,19 @@ void Timer::Stop()
     running = false;
 }
 
+float Timer::GetProgress() const
+{
+    if (!running || duration <= 0)
+        return 0.0f;
+
+    float progress = static_cast<float>(GetNowCount() - startTime) / static_cast<float>(duration);
+
+    if (progress > 1.0f)
+        progress = 1.0f;
+
+    return progress;
+}
+
 void Stopwatch::Reset()
 {
     startTime = GetNowCount();

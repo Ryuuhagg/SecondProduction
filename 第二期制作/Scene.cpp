@@ -885,12 +885,7 @@ void Game::Update(SceneManager& manager) {
 
 		p.Update();
 		if (p.IsAttackTriggered()) {
-			e.AttackEnemies(
-				p.GetPosition(),
-				p.GetForward(),
-				100.0f,
-				100
-			);
+			e.AttackEnemies(p.GetAttackArea());
 		}
 		e.Update(p.GetPosition(), &p);
 		c.Update();

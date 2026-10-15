@@ -24,8 +24,8 @@ void EnemyManager::Update(VECTOR playerPos, Damageable *player) {
         e->SetTarget(player);
         e->SetTargetPosition(playerPos);
         e->Update();
-        ResolveEnemyCollision();
     }
+    ResolveEnemyCollision();
 }
 
 void EnemyManager::Draw() {
@@ -76,27 +76,19 @@ void EnemyManager::ResolveEnemyCollision() {
     }
 }
 
-void EnemyManager::AttackEnemies(VECTOR attackPos, VECTOR forward, float attackRange, int damage) {
-    for (auto& e : enemies) {
-        // この敵が生きてなかったらスキップ
+void EnemyManager::AttackEnemies(const AttackArea& attackArea)
+{
+    for (auto& e : enemies)
+    {
         if (!e->IsActive())
             continue;
-        // 敵の位置取得
-        VECTOR toEnemy = VSub(e->GetPosition(), attackPos);
-        toEnemy.y = 0.0f;
-        // attackPosから敵へのベクトル
-        float distance = VSize(toEnemy);
-        // 距離判定
-        if ( distance <= attackRange) {
-            // 
-            VECTOR enemyDir = VNorm(toEnemy);
-            float dot = VDot(forward, enemyDir);
-            printfDx("dot = %f\n", dot);
-            if (dot >= 0.5f) {
-                e->Damage(damage);
-                printfDx("Enemy Hit\n");
-                printfDx("Enemy Hp : %d\n",e->GetHp());
-            }
+
+        if (attackArea.Contains(e->GetPosition()))
+        {
+            e->Damage(attackArea.damage);
+
+            printfDx("Enemy Hit\n");
+            printfDx("Enemy Hp : %d\n", e->GetHp());
         }
     }
 }

@@ -30,8 +30,8 @@ void Camera::Update() {
 
     VECTOR cameraPos = VGet(
         target.x,
-        target.y + 700.0f,   // çÇÇ≥
-        target.z - 500.0f    // è≠Çµå„ÇÎ
+        target.y + 600,   // çÇÇ≥
+        target.z - 600    // è≠Çµå„ÇÎ
     );
 
     SetCameraPositionAndTarget_UpVecY(

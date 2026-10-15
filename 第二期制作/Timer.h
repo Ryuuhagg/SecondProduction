@@ -3,7 +3,7 @@
 class Timer {
 	int startTime = 0;
 	int duration = 0;
-	bool running;
+	bool running = false;
 public:
 	// ˆø”‚Ìƒ~ƒŠ•b•ªrunning‚ªtrue‚É‚È‚é
 	void Start(int ms);
@@ -13,6 +13,8 @@ public:
 	bool IsRunning() const;
 	// running‚ğfalse‚É‚·‚é
 	void Stop();
+
+	float GetProgress() const;
 };
 
 class Stopwatch {
