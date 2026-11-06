@@ -85,6 +85,10 @@ bool Input::IsActionTrigger(Action action) {
         return IsKeyTrigger(KEY_INPUT_LEFT)
             || IsPadTrigger(PAD_INPUT_LEFT)
             || IsStickTriggerLeft();
+
+    case Action::Attack:
+        return IsKeyTrigger(config.KeyAttack)
+            || IsPadTrigger(config.PadAttack);
     }
 
     return false;

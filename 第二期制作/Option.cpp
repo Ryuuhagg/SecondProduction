@@ -176,6 +176,9 @@ void Option::SaveOption(const Config& config) {
 	j["KeyRight"] = KeyToStringSafe(config.KeyRight);
 	j["KeyLeft"] = KeyToStringSafe(config.KeyLeft);
 
+	j["KeyAttack"] = KeyToStringSafe(config.KeyAttack);
+	j["PadAttack"] = PadToStringSafe(config.PadAttack);
+
 	ofstream file("config.json");
 	if (file) {
 		file << j.dump(4);
@@ -218,6 +221,9 @@ void Option::LoadOption(Config& config) {
 		config.KeyBack = StringToKeySafe(j.value("KeyBack", "S"));
 		config.KeyRight = StringToKeySafe(j.value("KeyRight", "D"));
 		config.KeyLeft = StringToKeySafe(j.value("KeyLeft", "A"));
+
+		config.KeyAttack = StringToKeySafe(j.value("KeyAttack", "ENTER"));
+		config.PadAttack = StringToPadSafe(j.value("PadAttack", "B"));
 	}
 	else {
 		config.masterVolume = 50;
@@ -249,6 +255,9 @@ void Option::LoadOption(Config& config) {
 		config.KeyBack = KEY_INPUT_S;
 		config.KeyRight = KEY_INPUT_D;
 		config.KeyLeft = KEY_INPUT_A;
+
+		config.KeyAttack = KEY_INPUT_RETURN;
+		config.PadAttack = PAD_INPUT_2;
 
 		SaveOption(config);
 	}

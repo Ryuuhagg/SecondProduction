@@ -3,7 +3,7 @@
 class Timer {
 	int startTime = 0;
 	int duration = 0;
-	bool running;
+	bool running = false;
 public:
 	// 引数のミリ秒分runningがtrueになる
 	void Start(int ms);
@@ -13,6 +13,8 @@ public:
 	bool IsRunning() const;
 	// runningをfalseにする
 	void Stop();
+
+	float GetProgress() const;
 };
 
 class Stopwatch {
@@ -33,4 +35,24 @@ public:
 	void Resume();
 
 	void Stop();
+};
+
+class Cooldown
+{
+private:
+	int m_interval = 0;      // クールダウン時間
+	int m_lastTime = 0;      // 最後に使用した時間
+	bool m_started = false;  // 一度でも使用したか
+
+public:
+	Cooldown(int interval);
+
+	// 使用可能か
+	bool IsReady() const;
+
+	// クールダウン開始
+	void Reset();
+
+	// クールダウン時間変更
+	void SetInterval(int interval);
 };

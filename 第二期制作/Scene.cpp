@@ -818,14 +818,14 @@ void Game::Init() {
 	// 2026-06-12: [ENEMY]???????G???AEVENT?M?~?b?N???????????????????B
 	//InitGameEnemies();
 	p.Init();
-	//e.Init();
+	e.Init();
 
 }
 
 void Game::Draw() {
 	p.Draw();
 	// 2026-07-23: 敵デバッグ文字は出さず、現在階層の敵本体だけ描画する。
-	//e.DrawLayer(GetGameDrawLayer());
+	e.Draw();
 	//DrawString(WIDTH / 2, HEIGHT-550, "ゲーム画面", GetColor(255, 255, 255));
 	DrawGameMap();
 	// 2026-05-18: 迷路探索中に階層と通った道が見えるよう、3D描画の後にミニマップを重ねる。
@@ -833,10 +833,10 @@ void Game::Draw() {
 	DrawGameObjects();
 	// 2026-06-12: ?G?{???G?e??EVENT?`?悩?番????`?????????B
 	//DrawGameEnemies();
-	DrawMiniMap(p.getVECTOR());
+	DrawMiniMap(p.GetPosition());
 	DrawGameObjectHUD();
-	DrawFormatString(20, 92, WHITE, "LIFE %d", p.GetLife());
 	DrawFormatString(20, 122, WHITE, "layer %d", p.GetLayer());
+	DrawFormatString(20, 142, WHITE, "hp %d", p.GetHp());
 
 	elapsed = (timer.Elapsed() / 1000) % 60;
 	int minutes = timer.Elapsed() / 60000;
@@ -884,7 +884,10 @@ void Game::Update(SceneManager& manager) {
 		Input::UpdateMouseDeltaFromCenter();
 
 		p.Update();
-		e.Update();
+		if (p.IsAttackTriggered()) {
+			e.AttackEnemies(p.GetAttackArea());
+		}
+		e.Update(p.GetPosition(), &p);
 		c.Update();
 		UpdateGameMap();
 
@@ -892,15 +895,13 @@ void Game::Update(SceneManager& manager) {
 
 		// 2026-06-02: 取るもの/避けるもの/鍵扉/投げ敵をプレイヤー位置に合わせて更新するため追加。
 		bool playerDamaged = false;
-		int playerLayer = GetMapLayerFromWorldY(p.getVECTOR().y + BLOCK_SIZE * 0.5f);
-		UpdateGameObjects(p.getVECTOR(), playerLayer, playerDamaged);
+		int playerLayer = GetMapLayerFromWorldY(p.GetPosition().y + BLOCK_SIZE * 0.5f);
+		UpdateGameObjects(p.GetPosition(), playerLayer, playerDamaged);
 		// 2026-06-12: ?GAI??G?e????????????X?V?????????B
 	//	UpdateGameEnemies(p.getVECTOR(), playerLayer, playerDamaged);
 		if (playerDamaged)
 		{
 			timer.Pause();
-			p.Damage();
-			manager.Trans(make_unique<DamageFade>(p.GetLife()));
 		}
 		
 		// 2026-06-02: ライフが尽きた時にゲームを終わらせるため追加。
@@ -1057,7 +1058,7 @@ void Game::BuildPauseUI() {
 bool Game::IsGoal() {
 	// 2026-07-15: ジャンプ高さで上階扱いになると、1階から2階ゴールに触れた判定になるため実際の所属レイヤーを見る。
 	int playerLayer = p.GetLayer();
-	return IsGoalWorldPosition(playerLayer, p.getVECTOR().x, p.getVECTOR().z) && IsGameObjectGoalUnlocked();
+	return IsGoalWorldPosition(playerLayer, p.GetPosition().x, p.GetPosition().z) && IsGameObjectGoalUnlocked();
 }
 
 Result::Result(int time, GameLaunchMode launchMode, GameResult result) : clearTime(time), launchMode(launchMode), result(result) {
