@@ -1,7 +1,7 @@
 #pragma once
 #include"Character.h"
 #include"Enemy.h"
-#include"AttackArea.h"
+#include"AttackData.h"
 #include<memory>
 class EnemyManager {
     vector<unique_ptr<Enemy>> enemies;
@@ -15,7 +15,7 @@ public:
 
     void ResolveEnemyCollision();
 
-    void AttackEnemies(const AttackArea& attackArea);
+    void AttackEnemies(const AttackData& attackArea);
     void SpawnMelee(VECTOR pos);
 
     int GetEnemyCount() const;

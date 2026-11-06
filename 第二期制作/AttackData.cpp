@@ -1,6 +1,6 @@
-#include"AttackArea.h"
+#include"AttackData.h"
 
-bool AttackArea::Contains(VECTOR targetPos) const {
+bool AttackData::Contains(VECTOR targetPos) const {
     VECTOR toTarget = VSub(targetPos, position);
     toTarget.y = 0.0f;
 

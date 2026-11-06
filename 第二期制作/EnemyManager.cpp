@@ -76,7 +76,7 @@ void EnemyManager::ResolveEnemyCollision() {
     }
 }
 
-void EnemyManager::AttackEnemies(const AttackArea& attackArea)
+void EnemyManager::AttackEnemies(const AttackData& attackArea)
 {
     for (auto& e : enemies)
     {
@@ -85,7 +85,7 @@ void EnemyManager::AttackEnemies(const AttackArea& attackArea)
 
         if (attackArea.Contains(e->GetPosition()))
         {
-            e->Damage(attackArea.damage);
+            e->Damage(attackArea.power);
 
             printfDx("Enemy Hit\n");
             printfDx("Enemy Hp : %d\n", e->GetHp());

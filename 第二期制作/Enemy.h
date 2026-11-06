@@ -20,6 +20,9 @@ protected:
     float m_radius;
 
     VECTOR m_targetPos;
+
+    static constexpr int attackAnimationFrames = 12;
+    int m_attackAnimationRemaining = 0;
 public:
     Enemy(float speed, int maxHp);
     virtual ~Enemy() = default;

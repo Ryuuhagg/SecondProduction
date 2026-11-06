@@ -2,8 +2,10 @@
 #include"MapLoader.h"
 #include"Input.h"
 #include"GameObjects.h"
+#include"Constant.h"
+using namespace PlayerTuning;
 #pragma region === Player ===
-Player::Player() :Character(10, 10000), m_coolDown(1000)
+Player::Player() :Character(10, 10000), m_normalAttackCoolDown(1000), m_skill1CoolDown(1000),m_skill2CoolDown(1000)
 {
     Init();
 }
@@ -15,7 +17,7 @@ void Player::Init() {
     pos = GetStartPosition();
 
     angle = { 0.0f, 1.5f };
-    m_coolDown.SetInterval(1000);
+    SetJob(JobType::Warrior);
 }
 
 void Player::Update() {
@@ -27,14 +29,13 @@ void Player::Update() {
     SetGameLoadedLayer(m_layer);
 
     if (Input::IsActionTrigger(Action::Attack)) {
-        if (m_coolDown.IsReady()) {
-            NormalAttack();
-            m_coolDown.Reset();
-        }
+        NormalAttack();
     }
 
-    if (m_isAttacking && m_attackTimer.IsFinished()) {
-        m_isAttacking = false;
+
+
+    if (m_isNomalAttacking && m_attackTimer.IsFinished()) {
+        m_isNomalAttacking = false;
         m_attackTimer.Stop();
     }
 
@@ -44,74 +45,66 @@ void Player::Draw() {
     const int bodyColor = GetColor(255, 0, 0);
     const int frontColor = GetColor(255, 255, 0);
 
-    float legHalfWidth = m_size * 0.35f;
-    float armHalfWidth = m_size * 0.35f;
-    float legOffset = m_size * 0.55f;
-    float armOffset = m_size + armHalfWidth;
+    float legHalfWidth = default_size * 0.35f;
+    float armHalfWidth = default_size * 0.35f;
+    float legOffset = default_size * 0.55f;
+    float armOffset = default_size + armHalfWidth;
 
-    float rightArmAngle = 0.0f;
-    float leftArmAngle = 0.0f;
-    float rightLegAngle = 0.0f;
-    float leftLegAngle = 0.0f;
+    PlayerPose pose;
 
-    float rightArmPitch = 0.0f;
-    float leftArmPitch = 0.0f;
-    float rightLegPitch = 0.0f;
-    float leftLegPitch = 0.0f;
+    VECTOR leftArmOffset = VGet(-armOffset, default_size * 2, 0.0f);
+    VECTOR rightArmOffset = VGet(armOffset, default_size * 2, 0.0f);
 
-    VECTOR leftArmOffset = VGet(-armOffset, m_size * 2, 0.0f);
-    VECTOR rightArmOffset = VGet(armOffset, m_size * 2, 0.0f);
+    VECTOR leftShoulderOffset = VGet(-armOffset, default_size * 3, 0.0f);
+    VECTOR rightShoulderOffset = VGet(armOffset, default_size * 3, 0.0f);
 
-    VECTOR leftShoulderOffset = VGet(-armOffset, m_size * 3, 0.0f);
-    VECTOR rightShoulderOffset = VGet(armOffset, m_size * 3, 0.0f);
+    VECTOR leftLegOffset = VGet(-legOffset, default_size, 0.0f);
+    VECTOR rightLegOffset = VGet(legOffset, default_size, 0.0f);
 
-    VECTOR leftLegOffset = VGet(-legOffset, m_size, 0.0f);
-    VECTOR rightLegOffset = VGet(legOffset, m_size, 0.0f);
+    VECTOR leftHipOffset = VGet(-legOffset, default_size * 2, 0.0f);
+    VECTOR rightHipOffset = VGet(legOffset, default_size * 2, 0.0f);
 
-    VECTOR leftHipOffset = VGet(-legOffset, m_size * 2, 0.0f);
-    VECTOR rightHipOffset = VGet(legOffset, m_size * 2, 0.0f);
+    VECTOR leftEyeOffset = VGet(-default_size * 0.4f, default_size * 0.3f, default_size + 1.0f);
+    VECTOR rightEyeOffset = VGet(default_size * 0.4f, default_size * 0.3f, default_size + 1.0f);
 
-    VECTOR leftEyeOffset = VGet(-m_size * 0.4f, m_size * 0.3f, m_size + 1.0f);
-    VECTOR rightEyeOffset = VGet(m_size * 0.4f, m_size * 0.3f, m_size + 1.0f);
-
-    VECTOR mouthOffset = VGet(0.0f, -m_size * 0.3f, m_size + 1.0f);
+    VECTOR mouthOffset = VGet(0.0f, -default_size * 0.3f, default_size + 1.0f);
     
     if (m_isMoving) {
         m_animTime += 0.1f;
-        ApplyWalkAnimation(leftArmOffset, rightArmOffset, leftLegOffset, rightLegOffset, leftArmPitch, rightArmPitch, leftLegPitch, rightLegPitch);
+        ApplyWalkAnimation(pose);
     }
     else {
         m_animTime = 0;
-        ApplyIdolAnimation(leftArmOffset, rightArmOffset, leftLegOffset, rightLegOffset);
+        ApplyIdolAnimation(pose);
     }
 
-    if (m_isAttacking) {
-        ApplyNormalAttackAnimation(leftArmOffset, rightArmOffset, leftLegOffset, rightLegOffset, rightArmAngle, rightArmPitch);
+    if (m_isNomalAttacking) {
+        ApplyAttackAnimation(pose);
     }
 
-    VECTOR head = VGet(pos.x, pos.y + m_size * 4, pos.z);
-    VECTOR leftArm = CalculatePartPositionFromJoint(leftArmOffset, leftShoulderOffset, leftArmAngle, leftArmPitch);
-    VECTOR rightArm = CalculatePartPositionFromJoint(rightArmOffset,rightShoulderOffset,rightArmAngle,rightArmPitch);
+    VECTOR head = VGet(pos.x, pos.y + default_size * 4, pos.z);
+    VECTOR leftArm = CalculatePartPositionFromJoint(leftArmOffset, leftShoulderOffset, pose.leftArm.angle, pose.leftArm.pitch);
+    VECTOR rightArm = CalculatePartPositionFromJoint(rightArmOffset,rightShoulderOffset, pose.rightArm.angle, pose.rightArm.pitch);
     
-    VECTOR body = VGet(pos.x, pos.y + m_size * 2, pos.z);
-    VECTOR leftLeg = CalculatePartPositionFromJoint(leftLegOffset, leftHipOffset, leftLegAngle, leftLegPitch);
-    VECTOR rightLeg = CalculatePartPositionFromJoint(rightLegOffset, rightHipOffset, rightLegAngle, rightLegPitch);
+    VECTOR body = VGet(pos.x, pos.y + default_size * 2, pos.z);
+    VECTOR leftLeg = CalculatePartPositionFromJoint(leftLegOffset, leftHipOffset, pose.leftLeg.angle, pose.leftLeg.pitch);
+    VECTOR rightLeg = CalculatePartPositionFromJoint(rightLegOffset, rightHipOffset, pose.rightLeg.angle, pose.rightLeg.pitch);
 
     VECTOR leftEye = VAdd(head, RotateXZ(leftEyeOffset));
     VECTOR rightEye = VAdd(head, RotateXZ(rightEyeOffset));
     VECTOR mouth = VAdd(head, RotateXZ(mouthOffset));
 
-    DrawBox(head, m_size, m_size, m_size, frontColor);
-    DrawBox(leftArm, legHalfWidth, m_size / 2, m_size, frontColor, leftArmAngle, leftArmPitch);
-    DrawBox(rightArm, legHalfWidth, m_size / 2, m_size, frontColor, rightArmAngle, rightArmPitch);
-    DrawBox(body, m_size, m_size, m_size, bodyColor);
-    DrawBox(leftLeg, legHalfWidth, m_size / 2, m_size, bodyColor, leftLegAngle, leftLegPitch);
-    DrawBox(rightLeg, legHalfWidth, m_size / 2, m_size, bodyColor, rightLegAngle, rightLegPitch);
+    DrawBox(head, default_size, default_size, default_size, frontColor);
+    DrawBox(leftArm, armHalfWidth, default_size / 2, default_size, frontColor, pose.leftArm.angle, pose.leftArm.pitch);
+    DrawBox(rightArm, armHalfWidth, default_size / 2, default_size, frontColor, pose.rightArm.angle, pose.rightArm.pitch);
+    DrawBox(body, default_size, default_size, default_size, bodyColor);
+    DrawBox(leftLeg, legHalfWidth, default_size / 2, default_size, bodyColor, pose.leftLeg.angle, pose.leftLeg.pitch);
+    DrawBox(rightLeg, legHalfWidth, default_size / 2, default_size, bodyColor, pose.rightLeg.angle, pose.rightLeg.pitch);
 
-    DrawBox(leftEye, m_size * 0.15f, 2.0f, m_size * 0.15f, BLACK);
-    DrawBox(rightEye, m_size * 0.15f, 2.0f, m_size * 0.15f, BLACK);
+    DrawBox(leftEye, default_size * 0.15f, 2.0f, default_size * 0.15f, BLACK);
+    DrawBox(rightEye, default_size * 0.15f, 2.0f, default_size * 0.15f, BLACK);
 
-    DrawBox(mouth, m_size * 0.2f, 1.0f, m_size * 0.3f, BLACK);
+    DrawBox(mouth, default_size * 0.2f, 1.0f, default_size * 0.3f, BLACK);
 
 }
 
@@ -160,60 +153,101 @@ void Player::Move() {
 
 }
 
-void Player::Attack() {
-    m_attackTriggered = true;
-
-    m_attackArea.shape = AttackShape::Cone;
-    m_attackArea.position = pos;
-    m_attackArea.forward = GetForward();
-    m_attackArea.range = 100.0f;
-    m_attackArea.dotThreshold = 0.5f;
-    m_attackArea.damage = 10;
-}
-
 void Player::NormalAttack() {
+    if (!m_normalAttackCoolDown.IsReady()) {
+        return;
+    }
     m_attackTriggered = true;
 
-    m_attackArea.shape = AttackShape::Cone;
-    m_attackArea.position = pos;
-    m_attackArea.forward = GetForward();
-    m_attackArea.range = 100.0f;
-    m_attackArea.dotThreshold = 0.5f;
-    m_attackArea.damage = 10;
+    m_attackData = WarriorSlamAttackArea;
 
-    m_isAttacking = true;
-    m_attackTimer.Start(300);
+    m_attackData.position = pos;
+    m_attackData.forward = GetForward();
+    m_attackData.power += m_jobData.attackPower;
+    m_normalAttackCoolDown.SetInterval(m_attackData.coolDown);
+    m_normalAttackCoolDown.Reset();
+
+    m_isNomalAttacking = true;
+    switch (m_attackData.animationType) {
+    case AttackAnimationType::Swing:
+        m_attackTimer.Start(SwingAttackTime);
+        break;
+    case AttackAnimationType::Slam:
+        m_attackTimer.Start(SlamAttackTime);
+        break;
+    }
 }
 
-void Player::ApplyIdolAnimation(VECTOR& leftArm, VECTOR& rightArm, VECTOR& leftLeg, VECTOR& rightLeg)
+void Player::Skill1() {
+    if (!m_skill1CoolDown.IsReady()) {
+        return;
+    }
+    m_attackTriggered = true;
+
+    m_attackData = WarriorSlamAttackArea;
+
+    m_attackData.position = pos;
+    m_attackData.forward = GetForward();
+    m_attackData.power += m_jobData.attackPower;
+    m_normalAttackCoolDown.SetInterval(m_attackData.coolDown);
+    m_normalAttackCoolDown.Reset();
+
+    m_isNomalAttacking = true;
+    //m_attackTimer.Start(m_attackData.animationTime);
+}
+
+void Player::Skill2() {
+
+}
+
+void Player::ApplyIdolAnimation(PlayerPose& pose)
 {
 
 }
 
-void Player::ApplyWalkAnimation(VECTOR& leftArm, VECTOR& rightArm, VECTOR& leftLeg, VECTOR& rightLeg, float& leftArmPitch, float& rightArmPitch, float& leftLegPitch, float& rightLegPitch)
+void Player::ApplyWalkAnimation(PlayerPose& pose)
 {
     float swingAngle =
         sinf(m_animTime) *
         (30.0f * DX_PI_F / 180.0f);
 
-    leftArmPitch = swingAngle;
-    rightArmPitch = -swingAngle;
+    pose.leftArm.pitch = swingAngle;
+    pose.rightArm.pitch = -swingAngle;
 
-    leftLegPitch = -swingAngle;
-    rightLegPitch = swingAngle;
+    pose.leftLeg.pitch = -swingAngle;
+    pose.rightLeg.pitch = swingAngle;
 }
 
-void Player::ApplyNormalAttackAnimation(VECTOR& leftArm, VECTOR& rightArm, VECTOR& leftLeg, VECTOR& rightLeg, float& rightArmAngle, float& rightArmPitch) {
+void Player::ApplyAttackAnimation(PlayerPose& pose){
+    switch (m_attackData.animationType) {
+    case AttackAnimationType::Swing:
+        ApplySwingAnimation(pose);
+        break;
+    case AttackAnimationType::Slam:
+        ApplySlamAnimation(pose);
+        break;
+    }
+}
+
+void Player::ApplySwingAnimation(PlayerPose& pose) {
     float progress = m_attackTimer.GetProgress();
 
     float startAngle = 60.0f * DX_PI_F / 180.0f;
     float endAngle = -60.0f * DX_PI_F / 180.0f;
 
-    rightArmAngle =
+    pose.rightArm.angle =
         startAngle + (endAngle - startAngle) * progress;
 
     // çUåÇíÜÇæÇØòrÇâ°å¸Ç´Ç…Ç∑ÇÈ
-    rightArmPitch = -DX_PI_F / 2.0f;
+    pose.rightArm.pitch = -DX_PI_F / 2.0f;
+}
+
+void Player::ApplySlamAnimation(PlayerPose& pose) {
+    const float upPitch = -DX_PI_F;
+    const float downPitch = -DX_PI_F / 4.0f;
+    const float progress = m_attackTriggered ? 0.0f : m_attackTimer.GetProgress();
+
+    pose.rightArm.pitch = upPitch + (downPitch - upPitch) * progress;
 }
 
 void Player::DrawBox(VECTOR center, float halfWidth, float halfDepth, float halfHeight, int bodyColor, float addAngle, float pitchAngle) {
@@ -341,4 +375,17 @@ VECTOR Player::GetForward() const {
 }
 
 void Player::SetCameraAngle(Angle& a) { C_angle = a; }
+
+void Player::SetJob(JobType job) {
+    switch (job) {
+    case JobType::Warrior:
+        m_jobData = Warrior;
+        break;
+    case JobType::Mage:
+        m_jobData = Mage;
+        break;
+    }
+
+    m_speed = m_jobData.speed;
+}
 #pragma endregion
