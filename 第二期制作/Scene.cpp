@@ -811,6 +811,7 @@ void Game::Init() {
 	showingOption = false;
 
 	timer.Reset();
+	timer.Pause();
 	UISet();
 	InitGameMap();
 	// 2026-06-02: マップ読込後のEVENT配置からゲーム中ギミックを生成するため追加。
@@ -818,6 +819,7 @@ void Game::Init() {
 	// 2026-06-12: [ENEMY]???????G???AEVENT?M?~?b?N???????????????????B
 	//InitGameEnemies();
 	p.Init();
+	c.ResetView();
 	e.Init();
 
 }

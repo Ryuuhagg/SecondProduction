@@ -2,6 +2,7 @@
 #include"Character.h"
 #include"Constant.h"
 #include"Timer.h"
+#include"AttackData.h"
 enum class EnemyState {
 	Move,	// à⁄ìÆ
     Attack, // çUåÇ
@@ -18,6 +19,10 @@ protected:
     Cooldown m_coolDown;
 
     float m_radius;
+    int m_stanFlame = 0;
+    float m_knockback = 0;
+    VECTOR m_knockbackDir = {0,0,0};
+    int m_knockbackTime = 0;
 
     VECTOR m_targetPos;
 
@@ -31,6 +36,8 @@ public:
 
     void Update() override;
     void Draw() override;
+
+    void ApplyHit(const AttackData& data);
 
     virtual void Move() = 0;
     virtual void Attack() = 0;

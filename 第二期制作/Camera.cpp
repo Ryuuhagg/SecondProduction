@@ -2,7 +2,7 @@
 #include"Input.h"
 #include"MapLoader.h"
 #pragma region === Camela ===
-Camera::Camera(Player& p) : p(p), distance(360), frontLight(0)
+Camera::Camera(Player& p) : p(p), distance(220), frontLight(0)
 {
     Init();
 }
@@ -22,27 +22,27 @@ void Camera::Init() {
     );
 }
 
-void Camera::Update() {
-    VECTOR target = p.GetPosition();
-
-    // プレイヤーの少し上を見る
-    target.y += 30.0f;
-
-    VECTOR cameraPos = VGet(
-        target.x,
-        target.y + 600,   // 高さ
-        target.z - 600    // 少し後ろ
-    );
-
-    SetCameraPositionAndTarget_UpVecY(
-        cameraPos,
-        target
-    );
-    /*
-
+void Camera::ResetView() {
+    cameraAngle = { 0.0f, 0.35f };
     p.SetCameraAngle(cameraAngle);
+
     VECTOR target = p.GetPosition();
-    target.y += 80.0f; // 少し上を見るなら足元ではなく体の中心あたり
+    target.y += 30.0f;
+    VECTOR idealCamPos = VGet(
+        target.x - sinf(cameraAngle.x) * distance,
+        target.y + sinf(cameraAngle.y) * distance,
+        target.z - cosf(cameraAngle.x) * distance
+    );
+    VECTOR camPos = ResolveCameraCollision(target, idealCamPos, 12.0f, p.GetLayer());
+    SetCameraPositionAndTarget_UpVecY(camPos, target);
+}
+
+void Camera::Update() {
+    MoveAngle();
+
+    VECTOR target = p.GetPosition();
+    target.y += 30.0f;
+    p.SetCameraAngle(cameraAngle);
 
     VECTOR idealCamPos = VGet(
         target.x - sinf(cameraAngle.x) * distance,
@@ -50,39 +50,16 @@ void Camera::Update() {
         target.z - cosf(cameraAngle.x) * distance
     );
 
-    const float cameraRadius = 20.0f;
-    int layer = p.GetLayer();
-
+    const float cameraRadius = 12.0f;
     VECTOR camPos = ResolveCameraCollision(
         target,
         idealCamPos,
         cameraRadius,
-        layer
+        p.GetLayer()
     );
-
-    VECTOR dir = VSub(target, camPos);
-    dir = VNorm(dir);
-
-    SetLightPositionHandle(frontLight, camPos);
-    SetLightDirectionHandle(frontLight, dir);
-
-    VECTOR lightPos = VGet(
-        target.x,
-        target.y + 500.0f,
-        target.z
-    );
-
-    SetLightPosition(lightPos);
-
-
-    SetLightDirection(VGet(0, -1.0f, 0));
-
 
     SetCameraPositionAndTarget_UpVecY(camPos, target);
-    MoveAngle();
-    */
 }
-
 void Camera::Draw() {
 
 }
@@ -110,6 +87,6 @@ void Camera::MoveAngle() {
     cameraAngle.x += mouseDX * Input::GetMouseSensitivity();
     cameraAngle.y += mouseDY * Input::GetMouseSensitivity();
 
-    cameraAngle.y = Clamp(cameraAngle.y, 0.0f, 1.5f);
+    cameraAngle.y = Clamp(cameraAngle.y, 0.08f, 1.2f);
 }
 #pragma endregion
