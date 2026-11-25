@@ -85,7 +85,7 @@ void EnemyManager::AttackEnemies(const AttackData& attackArea)
 
         if (attackArea.Contains(e->GetPosition()))
         {
-            e->Damage(attackArea.power);
+            e->ApplyHit(attackArea);
 
             printfDx("Enemy Hit\n");
             printfDx("Enemy Hp : %d\n", e->GetHp());

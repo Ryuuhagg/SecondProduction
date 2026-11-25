@@ -88,7 +88,8 @@ bool Input::IsActionTrigger(Action action) {
 
     case Action::Attack:
         return IsKeyTrigger(config.KeyAttack)
-            || IsPadTrigger(config.PadAttack);
+            || IsPadTrigger(config.PadAttack)
+            || IsMouseTrigger(MOUSE_INPUT_LEFT);
     }
 
     return false;

@@ -15,4 +15,5 @@ public:
 	void Draw();
 
 	void MoveAngle();
+	void ResetView();
 };

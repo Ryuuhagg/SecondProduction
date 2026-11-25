@@ -2,8 +2,6 @@
 #include"MapLoader.h"
 #include"Input.h"
 #include"GameObjects.h"
-#include"Constant.h"
-using namespace PlayerTuning;
 #pragma region === Player ===
 Player::Player() :Character(10, 10000), m_normalAttackCoolDown(1000), m_skill1CoolDown(1000),m_skill2CoolDown(1000)
 {
@@ -79,7 +77,7 @@ void Player::Draw() {
     }
 
     if (m_isNomalAttacking) {
-        ApplyAttackAnimation(pose);
+        ApplyAttackAnimation(pose, m_attackData);
     }
 
     VECTOR head = VGet(pos.x, pos.y + default_size * 4, pos.z);
@@ -97,6 +95,7 @@ void Player::Draw() {
     DrawBox(head, default_size, default_size, default_size, frontColor);
     DrawBox(leftArm, armHalfWidth, default_size / 2, default_size, frontColor, pose.leftArm.angle, pose.leftArm.pitch);
     DrawBox(rightArm, armHalfWidth, default_size / 2, default_size, frontColor, pose.rightArm.angle, pose.rightArm.pitch);
+    DrawWeapon(rightShoulderOffset, pose);
     DrawBox(body, default_size, default_size, default_size, bodyColor);
     DrawBox(leftLeg, legHalfWidth, default_size / 2, default_size, bodyColor, pose.leftLeg.angle, pose.leftLeg.pitch);
     DrawBox(rightLeg, legHalfWidth, default_size / 2, default_size, bodyColor, pose.rightLeg.angle, pose.rightLeg.pitch);
@@ -105,7 +104,8 @@ void Player::Draw() {
     DrawBox(rightEye, default_size * 0.15f, 2.0f, default_size * 0.15f, BLACK);
 
     DrawBox(mouth, default_size * 0.2f, 1.0f, default_size * 0.3f, BLACK);
-
+    if(m_isNomalAttacking)
+        DrawAttackArea(m_attackData);
 }
 
 void Player::Move() {
@@ -159,7 +159,7 @@ void Player::NormalAttack() {
     }
     m_attackTriggered = true;
 
-    m_attackData = WarriorSlamAttackArea;
+    m_attackData = WarriorSwingAttackArea;
 
     m_attackData.position = pos;
     m_attackData.forward = GetForward();
@@ -200,6 +200,70 @@ void Player::Skill2() {
 
 }
 
+void Player::DrawWeapon(VECTOR rightShoulderOffset, const PlayerPose& pose) {
+    VECTOR gripOffset = rightShoulderOffset;
+    gripOffset.y -= default_size * 1.8f;
+
+    const float armYaw = pose.rightArm.angle;
+    const float armPitch = pose.rightArm.pitch;
+    const VECTOR grip = CalculatePartPositionFromJoint(
+        gripOffset, rightShoulderOffset, armYaw, armPitch
+    );
+    // ’ÊíŽž‚Í³–Ê‚É…•½BUŒ‚’†‚Í˜r‚ÌU‚è‚É‡‚í‚¹‚é
+    const float swordPitch = m_isNomalAttacking ? armPitch : -DX_PI_F / 2.0f;
+    const float worldYaw = angle.x + armYaw;
+    const float horizontal = -sinf(swordPitch);
+
+    const VECTOR direction = VGet(
+        horizontal * sinf(worldYaw),
+        -cosf(swordPitch),
+        horizontal * cosf(worldYaw)
+    );
+
+    // •¿‚Ì’[‚ðŽè‚æ‚è­‚µŒã‚ë‚Éo‚·
+    const float length = m_sword.GetLength();
+    const VECTOR root = VSub(grip, VScale(direction, length * 0.12f));
+    const VECTOR tip = m_sword.GetTip(root, direction);
+    const VECTOR center = VScale(VAdd(root, tip), 0.5f);
+    const float halfWidth = m_sword.GetHalfWidth();
+
+    DrawBox(
+        center, halfWidth, halfWidth, length * 0.5f,
+        GetColor(210, 225, 245), armYaw, swordPitch
+    );
+    // UŒ‚‚ðŽn‚ß‚½ƒtƒŒ[ƒ€‚ÅA‘O‚ÌUŒ‚‚Ì‹OÕ‚ðÁ‚·
+    if (m_attackTriggered || !m_isNomalAttacking) {
+        m_swordTrail.clear();
+    }
+
+    if (!m_isNomalAttacking) {
+        return;
+    }
+
+    // ¡‚ÌŒ•‚ÌˆÊ’u‚ð‹L˜^‚µA’¼‹ß5‰ñ‚Ì•`‰æ‚Ô‚ñ‚¾‚¯Žc‚·
+    constexpr int maxTrailPoints = 5;
+    m_swordTrail.push_back({ grip, tip });
+
+    if (m_swordTrail.size() > maxTrailPoints) {
+        m_swordTrail.pop_front();
+    }
+
+    const auto trailColor = GetColor(255, 230, 140);
+
+    for (size_t i = 1; i < m_swordTrail.size(); ++i) {
+        const auto& previous = m_swordTrail[i - 1];
+        const auto& current = m_swordTrail[i];
+
+        DrawQuad3D(
+            previous.grip,
+            previous.tip,
+            current.tip,
+            current.grip,
+            trailColor
+        );
+    }
+}
+
 void Player::ApplyIdolAnimation(PlayerPose& pose)
 {
 
@@ -218,8 +282,8 @@ void Player::ApplyWalkAnimation(PlayerPose& pose)
     pose.rightLeg.pitch = swingAngle;
 }
 
-void Player::ApplyAttackAnimation(PlayerPose& pose){
-    switch (m_attackData.animationType) {
+void Player::ApplyAttackAnimation(PlayerPose& pose, AttackData& attack){
+    switch (attack.animationType) {
     case AttackAnimationType::Swing:
         ApplySwingAnimation(pose);
         break;
@@ -232,8 +296,8 @@ void Player::ApplyAttackAnimation(PlayerPose& pose){
 void Player::ApplySwingAnimation(PlayerPose& pose) {
     float progress = m_attackTimer.GetProgress();
 
-    float startAngle = 60.0f * DX_PI_F / 180.0f;
-    float endAngle = -60.0f * DX_PI_F / 180.0f;
+    float startAngle = -80.0f * DX_PI_F / 180.0f;
+    float endAngle = 80.0f * DX_PI_F / 180.0f;
 
     pose.rightArm.angle =
         startAngle + (endAngle - startAngle) * progress;

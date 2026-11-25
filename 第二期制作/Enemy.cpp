@@ -2,9 +2,8 @@
 
 #pragma region === Enemy ===
 Enemy::Enemy(float speed, int maxHp) : Character(speed, maxHp), m_isActive(false) ,m_coolDown(1),m_radius(10), m_targetPos(VGet(0,0,0)), m_target(nullptr) {}
-
+using namespace EnemyTuning;
 void Enemy::Init(VECTOR pos) {
-    const float enemyRadius = 10.0f;
     m_isActive = true;
 }
 
@@ -21,8 +20,19 @@ void Enemy::Update() {
     if (m_attackAnimationRemaining > 0) {
         --m_attackAnimationRemaining;
     }
-
-    Move();
+    if (m_knockbackTime > 0)
+    {
+        pos = VAdd(pos, VScale(m_knockbackDir, m_knockback));
+        --m_knockbackTime;
+    }
+    else if (m_stanFlame > 0)
+    {
+        --m_stanFlame;
+    }
+    else
+    {
+        Move();
+    }
 }
 
 void Enemy::Draw() {
@@ -43,6 +53,20 @@ void Enemy::Draw() {
         GetColor(255, 255, 255),
         TRUE
     );
+}
+
+void Enemy::ApplyHit(const AttackData& data) {
+    Damage(data.power);
+
+    m_stanFlame = data.stunFrames;
+    m_knockback = data.knockback;
+    m_knockbackTime = knockbackTime;
+
+    m_knockbackDir = VSub(pos, data.position);
+    m_knockbackDir.y = 0.0f;
+
+    if (VSize(m_knockbackDir) > 0.001f)
+        m_knockbackDir = VNorm(m_knockbackDir);
 }
 
 void Enemy::SetTargetPosition(VECTOR targetPos)

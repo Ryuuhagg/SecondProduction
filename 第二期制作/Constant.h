@@ -5,6 +5,9 @@
 const int WIDTH = 1280;
 const int HEIGHT = 720;
 
+const int RED = GetColor(255, 0, 0);
+const int BLUE = GetColor(0, 255, 0);
+const int GREEN = GetColor(0, 0, 255);
 const int WHITE = GetColor(255, 255, 255);
 const int BLACK = GetColor(0, 0, 0);
 
@@ -17,11 +20,17 @@ namespace PlayerTuning {
     constexpr int SlamAttackTime = 120;
 }
 
+namespace EnemyTuning {
+    constexpr int knockbackTime = 10;
+}
+
 namespace WeaponData {
     constexpr float swordHalfWidth = default_size * 0.12f;
     const float swordHalfLength = default_size * 1.1f;
     const float swordCenterRadius = default_size * 2.8f;
+    const float swordLength = 66.0f;
 }
+
 
 template <typename T>
 T Clamp(T v, T min, T max) {

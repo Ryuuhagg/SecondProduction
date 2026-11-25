@@ -47,6 +47,7 @@
     <ClInclude Include="Transition.h" />
     <ClInclude Include="UI.h" />
     <ClInclude Include="UIManager.h" />
+    <ClInclude Include="Weapon.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AttackData.cpp" />
@@ -78,6 +79,7 @@
     <ClCompile Include="Transition.cpp" />
     <ClCompile Include="UI.cpp" />
     <ClCompile Include="UIManager.cpp" />
+    <ClCompile Include="Weapon.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

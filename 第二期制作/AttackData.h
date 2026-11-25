@@ -3,7 +3,8 @@
 enum class AttackShape
 {
     Cone,       // 前方扇形
-    Circle      // 周囲
+    Circle,     // 周囲
+    RectAngle,  // 前方長方形
 };
 
 enum class AttackMoveType {
@@ -20,49 +21,29 @@ enum class AttackAnimationType {
 
 struct AttackData
 {
-    AttackShape shape;
-    AttackMoveType moveType;
-    VECTOR position;
-    VECTOR forward;
+    AttackShape shape = AttackShape::Cone;
+    AttackMoveType moveType = AttackMoveType::None;
+    VECTOR position = VGet(0, 0, 0);
+    VECTOR forward = VGet(0, 0, 0);
 
-    float range;
-    float dotThreshold;
+    float range = 0.0f;
+    float dotThreshold = 0.0f;
 
-    int power;
-    int coolDown;
+    int power = 0;
+    int coolDown = 0;
 
-    AttackAnimationType animationType;
+    AttackAnimationType animationType = AttackAnimationType::Swing;
 
-    float moveSpeed;
-    float radius;
+    float moveSpeed = 0.0f;
+    float radius = 0.0f;
+
+    float knockback = 0.0f;
+    int stunFrames = 0;
 
     bool Contains(VECTOR targetPos) const;
 };
 
-const AttackData WarriorSwingAttackArea{
-    AttackShape::Cone,
-    AttackMoveType::None,
-    VGet(0, 0, 0),
-    VGet(0, 0, 0),
-    100.0f,
-    0.5f,
-    10,
-    300,
-    AttackAnimationType::Swing,
-    0.0f,   
-    0.0f,   
-};
+void DrawAttackArea(const AttackData& attack);
 
-const AttackData WarriorSlamAttackArea{
-    AttackShape::Cone,
-    AttackMoveType::None,
-    VGet(0, 0, 0),
-    VGet(0, 0, 0),
-    100.0f,
-    0.5f,
-    10,
-    300,
-    AttackAnimationType::Slam,
-    0.0f,   
-    0.0f, 
-};
+extern AttackData WarriorSwingAttackArea;
+extern AttackData WarriorSlamAttackArea;
